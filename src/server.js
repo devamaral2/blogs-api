@@ -8,5 +8,8 @@ const port = process.env.API_PORT || 3000;
 app.get('/', (_request, response) => {
   response.send();
 });
+app.get('/test', (req, res) => {
+  response.send('asdasdsa');
+})
 
 app.listen(port, () => console.log('ouvindo porta', port));
