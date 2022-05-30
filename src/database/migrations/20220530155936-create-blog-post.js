@@ -24,13 +24,13 @@ module.exports = {
           key: 'id'
         }
       },
-   /*    published: {
+      published: {
         type: Sequelize.STRING
       },
       updated: {
         type: Sequelize.STRING
-      }, */
-      published: {
+      },
+    /*   published: {
         allowNull: false,
         field: createdAt,
         type: Sequelize.DATE
@@ -39,7 +39,7 @@ module.exports = {
         allowNull: false,
         field: updatedAt,
         type: Sequelize.DATE
-      }
+      } */
     });
   },
   down: async (queryInterface, Sequelize) => {
