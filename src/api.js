@@ -10,6 +10,7 @@ app.use(express.json());
 app.use('/login', Routes.loginRoutes);
 app.use('/categories', Routes.categoriesRoutes);
 app.use('/post', Routes.postRoutes);
+app.use('/user', Routes.usersRoutes);
 // ...
 
 // É importante exportar a constante `app`,
