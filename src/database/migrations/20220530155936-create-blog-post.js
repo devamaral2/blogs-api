@@ -30,16 +30,6 @@ module.exports = {
       updated: {
         type: Sequelize.DATE
       },
-    /*   published: {
-        allowNull: false,
-        field: createdAt,
-        type: Sequelize.DATE
-      },
-      updated: {
-        allowNull: false,
-        field: updatedAt,
-        type: Sequelize.DATE
-      } */
     });
   },
   down: async (queryInterface, Sequelize) => {
