@@ -14,11 +14,17 @@ const signUp = async (payload) => {
 
 const getAll = async () => {
   const users = await User.findAll({ attributes: { exclude: 'password' } });
-  console.log(users);
   return users;
+};
+
+const getById = async (id) => {
+  const user = await User.findByPk(id, { attributes: { exclude: 'password' } });
+  if (!user) throw error(404, 'User does not exist');
+  return user;
 };
 
 module.exports = {
   signUp,
   getAll,
+  getById,
 };
