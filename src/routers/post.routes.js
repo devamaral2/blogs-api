@@ -8,6 +8,6 @@ const PostControllers = require('../controllers/postControllers');
 routes.post('/', 
   rescue(checkJwt), 
   rescue(PostControllers.createPost));
-/* routes.get('/', rescue(checkJwt), CategoryControllers.getAll); */
+routes.get('/', rescue(checkJwt), PostControllers.getAll);
 
 module.exports = routes;
