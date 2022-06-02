@@ -1,6 +1,10 @@
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 const error = require('../utils/throwError');
 const generateJwt = require('../utils/generateJwt');
 const { User } = require('../database/models');
+
+const secret = process.env.JWT_SECRET;
 
 const signUp = async (payload) => {
   const { displayName, email, password, image } = payload;
@@ -23,8 +27,15 @@ const getById = async (id) => {
   return user;
 };
 
+const deleteUser = async (token) => {
+  const decoded = jwt.verify(token, secret);
+  const { id } = decoded.data;
+    await User.destroy({ where: { id } });  
+};
+
 module.exports = {
   signUp,
   getAll,
   getById,
+  deleteUser,
 };

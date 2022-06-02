@@ -17,8 +17,15 @@ const getById = async (req, res) => {
   return res.status(200).json(user);
 };
 
+const deleteUser = async (req, res) => {
+  const token = req.headers.authorization;
+  await userServices.deleteUser(token);
+  return res.status(204).end();
+};
+
 module.exports = {
   signUp,
   getAll,
   getById,
+  deleteUser,
 };

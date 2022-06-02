@@ -10,5 +10,6 @@ routes.post('/',
   rescue(UserControllers.signUp));
 routes.get('/', rescue(checkJwt), UserControllers.getAll);
 routes.get('/:id', rescue(checkJwt), rescue(UserControllers.getById));
+routes.delete('/me', rescue(checkJwt), rescue(UserControllers.deleteUser));
 
 module.exports = routes;
