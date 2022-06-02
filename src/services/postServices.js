@@ -65,9 +65,27 @@ const updatePost = async (payLoad, token, id) => {
   return post;
 };
 
+const deletePost = async (token, id) => {
+  const decoded = jwt.verify(token, secret);
+  const userIdDecoded = decoded.data.id;
+  const post = await BlogPost.findByPk(id);
+  if (!post) throw error(404, 'Post does not exist');
+  const { userId } = post.dataValues;
+  if (userId !== userIdDecoded) throw error(401, 'Unauthorized user');
+  
+  try {
+    await sequelize.transaction(async (t) => {
+      await BlogPost.destroy({ where: { id, userId } }, { transaction: t });   
+    });
+  } catch (err) {
+     throw error(401, 'Unauthorized user');
+  }
+};
+
 module.exports = {
   createPost,
   getAll,
   getById,
   updatePost,
+  deletePost,
 };
