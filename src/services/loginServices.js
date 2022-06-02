@@ -7,7 +7,10 @@ const signIn = async (payload) => {
   if (!email || !password) throw error(400, 'Some required fields are missing');
   const users = await User.findAll({ where: { password, email } });
   if (users.length === 0) throw error(400, 'Invalid fields');
-  const token = generateJwt({ email: users[0].dataValues.email });
+  const token = generateJwt({ 
+    id: users[0].dataValues.id,
+    email: users[0].dataValues.email, 
+  });
   return token;
 };
 

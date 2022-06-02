@@ -7,8 +7,8 @@ const signUp = async (payload) => {
   console.log(email);
   const users = await User.findAll({ where: { email } });
   if (users.length !== 0) throw error(409, 'User already registered');
-  await User.create({ email, displayName, password, image });
-  const token = generateJwt({ email });
+  const newUser = await User.create({ email, displayName, password, image });
+  const token = generateJwt({ email, id: newUser.dataValues.id });
   return token;
 };
 

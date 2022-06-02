@@ -11,7 +11,23 @@ const getAll = async (_req, res) => {
   return res.status(200).json(users);
 };
 
+const getById = async (req, res) => { 
+  const { id } = req.params;
+  const post = await postServices.getById(id);
+  return res.status(200).json(post);
+};
+
+const updatePost = async (req, res) => {
+  const { id } = req.params;
+  const payLoad = req.body;
+  const token = req.headers.authorization;
+  const updatedPost = await postServices.updatePost(payLoad, token, id);
+  return res.status(200).json(updatedPost);
+};
+
 module.exports = {
   createPost,
   getAll,
+  getById,
+  updatePost,
 };

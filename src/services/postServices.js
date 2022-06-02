@@ -1,6 +1,9 @@
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 const { BlogPost, sequelize, PostCategory, Category, User } = require('../database/models');
 const error = require('../utils/throwError');
 
+const secret = process.env.JWT_SECRET;
 const date = new Date(Date.now());
 
 const checkAtributtes = async (title, content, categoryIds) => {
@@ -42,7 +45,29 @@ const getAll = async () => {
   return posts;
 };
 
+const getById = async (id) => {
+  const post = await BlogPost.findByPk(id, { include: 
+    [{ model: User, as: 'user', attributes: { exclude: 'password' } }, 
+    { model: Category, as: 'categories', through: { attributes: [] } }] });
+  if (!post) throw error(404, 'Post does not exist');
+  return post;
+};
+
+const updatePost = async (payLoad, token, id) => {
+  const { title, content } = payLoad;
+  if (!title || !content) throw error(400, 'Some required fields are missing');
+  const decoded = jwt.verify(token, secret);
+  if (Number(id) !== decoded.data.id) throw error(401, 'Unauthorized user');
+  await BlogPost.update({ title, content, userId: id, updated: date }, { where: { id } });
+  const post = await BlogPost.findByPk(id, { include: 
+    [{ model: User, as: 'user', attributes: { exclude: 'password' } }, 
+    { model: Category, as: 'categories', through: { attributes: [] } }] });
+  return post;
+};
+
 module.exports = {
   createPost,
   getAll,
+  getById,
+  updatePost,
 };
