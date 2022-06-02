@@ -1,8 +1,15 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const { BlogPost, sequelize, PostCategory, Category, User } = require('../database/models');
+const { 
+  BlogPost, 
+  sequelize, 
+  PostCategory, 
+  Category, 
+  User, 
+  Sequelize } = require('../database/models');
 const error = require('../utils/throwError');
 
+const { Op } = Sequelize; 
 const secret = process.env.JWT_SECRET;
 const date = new Date(Date.now());
 
@@ -72,7 +79,6 @@ const deletePost = async (token, id) => {
   if (!post) throw error(404, 'Post does not exist');
   const { userId } = post.dataValues;
   if (userId !== userIdDecoded) throw error(401, 'Unauthorized user');
-  
   try {
     await sequelize.transaction(async (t) => {
       await BlogPost.destroy({ where: { id, userId } }, { transaction: t });   
@@ -82,10 +88,31 @@ const deletePost = async (token, id) => {
   }
 };
 
+const searchPost = async (q) => {
+  if (!q) {
+    const response = await BlogPost.findAll({ include: 
+      [{ model: User, as: 'user', attributes: { exclude: 'password' } }, 
+      { model: Category, as: 'categories', through: { attributes: [] } }] });
+    return response;
+    }
+  const post = await BlogPost.findAndCountAll({ where: {
+      [Op.or]: [
+        { title: { [Op.like]: q } }, 
+        { content: { [Op.like]: q } }, 
+      ] } });
+  if (post.rows.length === 0) return [];
+  const { id } = post.rows[0];
+  const formedPost = await BlogPost.findByPk(id, { include: 
+    [{ model: User, as: 'user', attributes: { exclude: 'password' } }, 
+    { model: Category, as: 'categories', through: { attributes: [] } }] });
+  return [formedPost];
+};
+
 module.exports = {
   createPost,
   getAll,
   getById,
   updatePost,
   deletePost,
+  searchPost,
 };
