@@ -80,8 +80,6 @@ const deletePost = async (token, id) => {
   const post = await BlogPost.findByPk(id);
   if (!post) throw error(404, 'Post does not exist');
   const { userId } = post.dataValues;
-  console.log(userId)
-  console.log(userIdDecoded)
   if (userId !== userIdDecoded) throw error(401, 'Unauthorized user');
   try {
     await sequelize.transaction(async (t) => {
