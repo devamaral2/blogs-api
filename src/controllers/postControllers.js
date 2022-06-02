@@ -2,7 +2,8 @@ const postServices = require('../services/postServices');
 
 const createPost = async (req, res) => {
   const payLoad = req.body; 
-  const newPost = await postServices.createPost(payLoad);
+  const token = req.headers.authorization;
+  const newPost = await postServices.createPost(payLoad, token);
   return res.status(201).json(newPost);
 };
 

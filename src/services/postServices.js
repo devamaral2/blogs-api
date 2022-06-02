@@ -19,11 +19,11 @@ const checkAtributtes = async (title, content, categoryIds) => {
   if (haveAnCategory.rows.length === 0) throw error(400, '"categoryIds" not found'); 
 };
 
-const addsPostAndPostCategory = async (title, content, categoryIds) => {
+const addsPostAndPostCategory = async (title, content, categoryIds, userId) => {
   try {
     const result = await sequelize.transaction(async (t) => {
       const newPost = await BlogPost
-      .create({ title, content, categoryIds, userId: 1, updated: date, published: date }, 
+      .create({ title, content, categoryIds, userId, updated: date, published: date }, 
         { transaction: t });
       await Promise.all(categoryIds.map(async (category) => {
         await PostCategory.create(
@@ -39,10 +39,12 @@ const addsPostAndPostCategory = async (title, content, categoryIds) => {
   }
 };
 
-const createPost = async (payLoad) => {
+const createPost = async (payLoad, token) => {
   const { title, content, categoryIds } = payLoad;
+  const decoded = jwt.verify(token, secret);
+  const userId = decoded.data.id;
   await checkAtributtes(title, content, categoryIds);
-  return addsPostAndPostCategory(title, content, categoryIds);
+  return addsPostAndPostCategory(title, content, categoryIds, userId);
 };
 
 const getAll = async () => {
@@ -78,6 +80,8 @@ const deletePost = async (token, id) => {
   const post = await BlogPost.findByPk(id);
   if (!post) throw error(404, 'Post does not exist');
   const { userId } = post.dataValues;
+  console.log(userId)
+  console.log(userIdDecoded)
   if (userId !== userIdDecoded) throw error(401, 'Unauthorized user');
   try {
     await sequelize.transaction(async (t) => {
@@ -90,22 +94,23 @@ const deletePost = async (token, id) => {
 
 const searchPost = async (q) => {
   if (!q) {
-    const response = await BlogPost.findAll({ include: 
+    const post = await BlogPost.findAll({ include: 
       [{ model: User, as: 'user', attributes: { exclude: 'password' } }, 
       { model: Category, as: 'categories', through: { attributes: [] } }] });
-    return response;
-    }
-  const post = await BlogPost.findAndCountAll({ where: {
+    return post;
+  }
+  const post = await BlogPost.findAll({ 
+    where: {
       [Op.or]: [
         { title: { [Op.like]: q } }, 
         { content: { [Op.like]: q } }, 
-      ] } });
-  if (post.rows.length === 0) return [];
-  const { id } = post.rows[0];
-  const formedPost = await BlogPost.findByPk(id, { include: 
-    [{ model: User, as: 'user', attributes: { exclude: 'password' } }, 
-    { model: Category, as: 'categories', through: { attributes: [] } }] });
-  return [formedPost];
+      ], 
+    }, 
+    include: 
+      [{ model: User, as: 'user', attributes: { exclude: 'password' } }, 
+      { model: Category, as: 'categories', through: { attributes: [] } }], 
+  });
+  return post;
 };
 
 module.exports = {
